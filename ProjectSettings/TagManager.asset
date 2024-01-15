@@ -7,6 +7,9 @@ TagManager:
   - coin
   - mushroom
   - nendat
+  - gach
+  - tuongbao
+  - door
   layers:
   - Default
   - TransparentFX

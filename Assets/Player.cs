@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -18,14 +19,29 @@ public class Player : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D other)
     {
         Debug.Log("Va cham vao: " + other.gameObject.tag);
+        if (other.gameObject.tag == "nendat")
+        {
+            isGrounded = true;
+            animator.SetBool("isGround", true);
+            animator.SetBool("isRun", false);
+        }
+        else if (other.gameObject.tag == "door")
+        {
+            SceneManager.LoadScene("Level1");
+        }
     }
 
     Rigidbody2D rigidbody2d;
+    SpriteRenderer spriteRenderer;
+    bool isGrounded = false;
+    Animator animator;
 
     // Start is called before the first frame update
     void Start()
     {
         rigidbody2d = GetComponent<Rigidbody2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
     }
 
     int jumpCount = 1;
@@ -38,18 +54,53 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            Debug.Log("space key was pressed " + jumpCount);
-            jumpCount++;
 
-            rigidbody2d.AddForce(Vector2.up * movePrefix, ForceMode2D.Impulse);
+            if (isGrounded)
+            {
+                rigidbody2d.AddForce(Vector2.up * movePrefix * 2, ForceMode2D.Impulse);
+                isGrounded = false;
+
+                animator.SetBool("isGround", false);
+                animator.SetBool("isRun", false);
+            }
+
+            
         }
         else if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
+            spriteRenderer.flipX = true;
             rigidbody2d.AddForce(Vector2.left * movePrefix, ForceMode2D.Impulse);
+
+            animator.SetBool("isRun", true);
+
+            // doi chay het animation run
+            //setToIdle();
+
         }
         else if (Input.GetKeyDown(KeyCode.RightArrow))
         {
+            spriteRenderer.flipX = false;
             rigidbody2d.AddForce(Vector2.right * movePrefix, ForceMode2D.Impulse);
+
+            animator.SetBool("isRun", true);
+
+            //setToIdle();
         }
+        
+    }
+
+    private void setToIdle ()
+    {
+        StartCoroutine(wait(1f));
+
+        animator.SetBool("isRun", false);
+        animator.SetBool("isGround", true);
+    }
+
+    IEnumerator wait(float timeSeconds)
+    {
+
+        yield return new WaitForSeconds(timeSeconds);
+
     }
 }
